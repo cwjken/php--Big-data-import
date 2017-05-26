@@ -2,39 +2,48 @@
 
 class FileInsert{
     private $filename;   //源文件名
-    private $dealArr;    //回调函数
-    private $rows;      
+    private $dealArr;   //回调函数
     
     /**
      * 初始化
      * @param  string $filename  需要检索的文件
      * @param  string arr        回调函数,用来处理获取到的数据  
-     * @param  string            每一次提交读取处理的行数
      * @return [type]            [description]
      */
-    public function __construct($filename,$arr,$rows){
+    public function __construct($filename,$arr){
         $this->filename = $filename;
         $this->dealArr  = $arr;
-        $this->rows     = $rows;
     }
 
 
-    //处理没一行读取的数据
+    
+    public function receive(){
+        if($p){
+            $this ->assign('filename',$eid.'_g.txt');
+            $this ->assign('eid',$eid);
+            $this ->assign('uid',$uid);
+            $this ->display();
+        }
+
+    }
+
+    
     public function read() {
-        $sFile   = $this ->filename;
-        $start   = (int)trim($_GET['start']);
-        $get     = self::getFileLine($sFile,$start,1000);
-        $the_arr = explode ("\n",$get['content']);
+        $sFile = trim(I('fname'));
+        $start = (int)trim(I('start',0));
+        $get=self::getFileLine($sFile,$start,1000);
+        $the_arr=explode ("\n",$get['content']);
 
         foreach($the_arr as $k=>$v){
             $tmp = explode ("\t",$v);
-
-            if($this->dealArr((array)$tmp)){
-                $c.= '处理<span style="color:green">成功</span><br />';
-            }else{
-                $e.= '处理<span style="color:red">失败</span><br />';
+            $cas = trim($tmp[0]);
+            if(!empty($cas)){
+                if(self::dataHandle((array)$tmp)){
+                    // $c.= "cas:".$cas.'处理<span style="color:green">成功</span><br />';
+                }else{
+                    $e.= "cas:".$cas.'处理<span style="color:red">失败</span><br />';
+                }
             }
-
             
         }
             $res_arr['content'] = $c.$e;

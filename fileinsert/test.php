@@ -1,6 +1,6 @@
 <?php
-$filename = dirname(__FILE__)."/";
-$m = new FileInsert("test.txt",'dataHandle');
+$filename = dirname(__FILE__)."/test.txt";
+$m = new FileInsert($filename,'dataHandle');
 echo $m->search(95500736);
 
 ?>
@@ -10,7 +10,7 @@ echo $m->search(95500736);
 <head>
 	<meta charset="UTF-8">
 	<title>Document</title>
-	 <script src="__PUBLIC__/home/js/jquery.min.js"></script>
+	 <script src="./jquery-1.8.3.min.js"></script>
 </head>
 <body>
 	<div id="con" attr="<?php echo $filename; ?>"></div>
@@ -18,6 +18,7 @@ echo $m->search(95500736);
 <script type="text/javascript">
 	var fname = $('#con').attr('attr');
     noTimeOut(0,fname);
+
 	function noTimeOut(s,fname){
 		var start = s;
 		$.ajax({
@@ -26,7 +27,6 @@ echo $m->search(95500736);
 			type:'post',
 			datatype:'text',
 			success:function(data) {
-
 				if(data['is_end']==1||data['length']==0){
 					alert('数据导入完成');	
 				}else{
@@ -36,10 +36,16 @@ echo $m->search(95500736);
 				}
 			}
 		});
-	}
-	
+	}	
 
 </script>
 	
 </body>
 </html>
+
+<?php
+
+	function dataHandle($data){
+		//这里做数据处理
+	}
+ ?>
