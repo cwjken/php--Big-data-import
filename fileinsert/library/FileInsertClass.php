@@ -2,7 +2,7 @@
 
 class FileInsert{
     private $filename;   //源文件名
-    private $dealArr;    //回调函数
+    private $callback;    //回调函数
     private $rows;      
     
     /**
@@ -12,35 +12,46 @@ class FileInsert{
      * @param  string            每一次提交读取处理的行数
      * @return [type]            [description]
      */
-    public function __construct($filename,$arr,$rows){
+    public function __construct($filename=null,$arr,$rows=1){
         $this->filename = $filename;
-        $this->dealArr  = $arr;
+        $this->callback = $arr;
         $this->rows     = $rows;
     }
 
 
-    //处理没一行读取的数据
-    public function read() {
+    //处理没一行读取的数据,$s为开始读取的字节数
+    public function read($s) {
         $sFile   = $this ->filename;
-        $start   = (int)trim($_GET['start']);
-        $get     = self::getFileLine($sFile,$start,1000);
+        $start   = $s;
+        $get     = self::getFileLine($this->filename,$start,$this->rows);
         $the_arr = explode ("\n",$get['content']);
+        array_pop($the_arr);
 
         foreach($the_arr as $k=>$v){
             $tmp = explode ("\t",$v);
-
-            if($this->dealArr((array)$tmp)){
-                $c.= '处理<span style="color:green">成功</span><br />';
+            $c = '';
+            $e = '';
+            if($this->callback) { 
+                $callback = $this->callback;
+                if (is_callable($this->callback)) {
+                    if(call_user_func($callback,(array)$tmp)){
+                        $c.= $tmp[0].'<span style="color:green">处理成功</span>';
+                    }else{
+                        $e.= $tmp[0].'<span style="color:red">处理失败</span>';
+                    }
+                }else{
+                    $e.= '<span style="color:red">回调函数调用失败</span>';
+                }
             }else{
-                $e.= '处理<span style="color:red">失败</span><br />';
-            }
-
-            
+                $e.= '<span style="color:red">找不到回调函数</span>';
+            }    
         }
-            $res_arr['content'] = $c.$e;
+
+
+            $res_arr['content'] = $c.$e;        
             $res_arr['length']  = $get['length'];
             $res_arr['is_end']  = $get['is_end'];
-            echo json_encode($res_arr);
+            return $res_arr;
     }
 
 
@@ -53,6 +64,7 @@ class FileInsert{
      */
     public static function getFileLine ($file,$start,$step) {
         $sTmp = '';
+        $arr['is_end'] = 0;
         try {
             if (false === ($fp = fopen ($file, 'r'))) {
                 throw new Exception ('Failed to open file : '.$file);

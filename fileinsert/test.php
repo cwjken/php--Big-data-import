@@ -1,51 +1,23 @@
 <?php
-$filename = dirname(__FILE__)."/test.txt";
-$m = new FileInsert($filename,'dataHandle');
-echo $m->search(95500736);
+require('./library/FileInsertClass.php');
+header('content-type:text/html;charset=utf-8');
+error_reporting(E_ALL ^ E_NOTICE);
+$filename = dirname(__FILE__)."/test.txt";      //文本的最后一行末尾要换行一个空行  否则读取不了最后一行
+$m = new FileInsert($filename,'dataHandle',1);
 
-?>
+$start = (int)trim($_POST['start']);
+$arr   = $m->read($start);
+echo json_encode($arr);
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Document</title>
-	 <script src="./jquery-1.8.3.min.js"></script>
-</head>
-<body>
-	<div id="con" attr="<?php echo $filename; ?>"></div>
-	
-<script type="text/javascript">
-	var fname = $('#con').attr('attr');
-    noTimeOut(0,fname);
 
-	function noTimeOut(s,fname){
-		var start = s;
-		$.ajax({
-			url:'read',
-			data:{start:start,fname:fname},
-			type:'post',
-			datatype:'text',
-			success:function(data) {
-				if(data['is_end']==1||data['length']==0){
-					alert('数据导入完成');	
-				}else{
-					start += data['length'];
-					$('#con').append(data['content']+'--'+data['length']+'--'+start+'<br />');
-					noTimeOut(start,fname);	
-				}
-			}
-		});
-	}	
 
-</script>
-	
-</body>
-</html>
+/**
+ * [dataHandle 回调函数，处理数据]
+ * @param  [array] $data [读取出来的每一行的数据组成的数组]
+ * @return [boolean]     [返回true或者false]
+ */
+function dataHandle($data){
+	//这里做数据处理,写入数据库或者其他操作
+	return true;
+}
 
-<?php
-
-	function dataHandle($data){
-		//这里做数据处理
-	}
- ?>
